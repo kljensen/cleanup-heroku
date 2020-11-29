@@ -1,53 +1,45 @@
 #!/bin/sh
 #set -x
 
-CUTOFF_DATE=""
-CONFIRM=""
+SHOW_COLUMNS=""
+AUTO_CONFIRM=""
 
-while getopts d:y FLAG
+usage() {
+	print >&2 "Usage: $0 [-s] [-d seplist] file ..."
+}
+
+while getopts cy FLAG
 do	case "$FLAG" in
-	d)	CUTOFF_DATE="$OPTARG";;
-	y)	CONFIRM="yes";;
-	[?])	print >&2 "Usage: $0 [-s] [-d seplist] file ..."
+	c)	SHOW_COLUMNS="yes";;
+	y)	AUTO_CONFIRM="yes";;
+	[?])
+        usage
 		exit 1;;
 	esac
 done
 
-# Figure out if the user has BSD or GNU date
-DATE_COMMAND_TYPE=""
-if command -v date &> /dev/null
-then
-    if [ -z $(date --version 2>/dev/null || echo "" | grep GNU) ]; then
-        DATE_COMMAND_TYPE="BSD"
-    else
-        DATE_COMMAND_TYPE="GNU"
-    fi
-else
-    # No `date` command found. Check for gdate.
-    if command -v gdate &> /dev/null
-    then
-        DATE_COMMAND_TYPE="GNU"
-    else
-        echo "Error: A date could not be found"
-        exit
-    fi
-fi
-
-
-if [ ! -z "CUTOFF_DATE" ]; then
-    IN_FORMAT="%Y-%m-%d"
-    OUT_FORMAT="+$IN_FORMAT"
-    gdate  $OUT_FORMAT -d "$CUTOFF_DATE"
-    date -jf "$IN_FORMAT" "$OUT_FORMAT" "$CUTOFF_DATE"
-fi
-
-# Grab Heroku apps except those on which we are a collaborator
 HEROKU_APPS=$(heroku apps | sed -n '/=== Collaborated Apps/q;p' |grep -v '^$'|grep -v '^===')
 
+get_json_field_value() {
+    # Returns a value given a JSON string and a key name.
+    # Assumes the JSON is pretty-printed and the key and
+    # value are alone on the same line. The grep removing
+    # addons is there because addons have a "web_url".
+    printf '%s' "$1"| sed -n -e "/\"$2\"/p;"| grep -v '/addons/'| sed 's/^  *//;s/.*":  *"*//;s/"*,* *$//' 
+}
+
+if [ ! -z "$SHOW_COLUMNS" ]; then
+    echo "app|buildpack|release_date|last_log_date|web_url"
+fi
 
 for APP in $HEROKU_APPS; do
-    APP_INFO=$(heroku apps:info --json $APP)
-    WEB_URL=$(echo "$APP_INFO"|grep '^  *"web_url"')
-    echo "$WEB_URL"
-    exit
+    APP_INFO=$(heroku apps:info --json $APP 2>/dev/null)
+    WEB_URL=$(get_json_field_value "$APP_INFO" "web_url")
+    RELEASE_DATE=$(get_json_field_value "$APP_INFO" "released_at" | sed 's/T.*//')
+    BUILDPACK=$(get_json_field_value "$APP_INFO" "buildpack_provided_description")
+    LAST_LOG_DATE=$(heroku logs -n1 -a "$APP"|sed -n '/[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]T/s/T.*//;p')
+    if [ -z "$LAST_LOG_DATE" ]; then
+        LAST_LOG_DATE="null"
+    fi
+    echo "$APP|$BUILDPACK|$RELEASE_DATE|$LAST_LOG_DATE|$WEB_URL"
 done
