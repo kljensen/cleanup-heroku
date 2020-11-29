@@ -40,13 +40,16 @@ curl -O https://raw.githubusercontent.com/kljensen/cleanup-heroku/main/cleanup-h
 
 ## Example Usage
 
-The shell script has two commands: `list` and `destroy`. The `list` command produces pipe-delimited
-output showing the following detail about each of your apps: the app name, the app's buildpack (language),
-the app's release date (when you last deployed), the date of the latest logs for the app, and
-the app's URL. If an app hasn't been active in a log time, the logs can be empty and in that
-case the date of the latest log is `null`. Also, the last log date is not necessarily the
-last date at which the app received traffic; sometimes your app is restarted by Heroku
-and The output looks like the following:
+The shell script has two commands: `list` and `destroy`. The `list` command
+produces pipe-delimited output showing the following detail about each of your
+apps: the app name, the app's buildpack (language), the app's release date
+(when you last deployed), the date of the latest logs for the app, and the
+app's URL. If an app hasn't been active in a log time, the logs can be empty
+and in that case the date of the latest log is `null`. Also, the last log date
+is not necessarily the last date at which the app received traffic; sometimes
+your app is restarted by Heroku.  The `list` command only shows those
+applications that you own and not applications on which you are a collaborator.
+The output looks like the following:
 
 ```
 >  ./cleanup-heroku.sh list -c 
