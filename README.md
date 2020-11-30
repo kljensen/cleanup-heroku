@@ -1,5 +1,7 @@
 # Cleanup Heroku
 
+![shellcheck](https://github.com/kljensen/cleanup-heroku/workflows/shellcheck/badge.svg?event=push)
+
 **Table Of Contents**
 - [Project description](#project-description)
 - [Installation](#installation)
