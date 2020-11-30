@@ -3,7 +3,7 @@ on:
     branch:
       - main
 
-name: 'Trigger: Check POSIX compliance with shellcheck'
+name: 'shellcheck'
 
 jobs:
   shellcheck:
