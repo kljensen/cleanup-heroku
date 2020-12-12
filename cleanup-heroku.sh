@@ -14,8 +14,8 @@ get_json_field_value() {
 
 list_apps () {
     SHOW_COLUMNS=""
-    while getopts ch FLAG
-    do	case "$FLAG" in
+    while getopts ":ch" FLAG
+    do case "$FLAG" in
         c)
             SHOW_COLUMNS="yes"
             ;;
