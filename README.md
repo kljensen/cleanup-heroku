@@ -34,6 +34,22 @@ Or by downloading the `cleanup-heroku.sh` shell script directly
 curl -O https://raw.githubusercontent.com/kljensen/cleanup-heroku/main/cleanup-heroku.sh
 ```
 
+Or, if you are a [homebrew](https://brew.sh/) user, you can install
+`cleanup-heroku` via the [kljensen/tap](https://github.com/kljensen/homebrew-tap)
+tap using either
+
+```
+brew install kljensen/tap/cleanup-heroku
+```
+
+or
+
+```
+brew tap kljensen/tap
+brew install cleanup-heroku
+```
+
+
 **Requirements/Dependencies:**
 - The [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli)
 - A Posix-compliant shell (`/bin/sh`: [the Bourne shell](https://en.wikipedia.org/wiki/Bourne_shell) by default)
